@@ -1,0 +1,75 @@
+@model IEnumerable<Hotel.Web.Models.Habitacion>
+@using Hotel.Web.Models
+@{
+    ViewData["Title"] = "Habitaciones";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="bi bi-door-open me-2"></i>Habitaciones</h1>
+    <a class="btn btn-hotel-gold" asp-action="Create">
+        <i class="bi bi-plus-circle me-1"></i>Nueva Habitación
+    </a>
+</div>
+
+<div class="search-bar">
+    <form asp-action="Index" method="get" class="row g-2 align-items-end">
+        <div class="col-sm-6 col-md-4">
+            <label class="form-label fw-semibold">Filtrar por tipo</label>
+            <select name="idTipoHabitacion" class="form-select" asp-items="ViewBag.Tipos">
+                <option value="">Todos los tipos</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-hotel-primary"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+            <a class="btn btn-outline-secondary ms-1" asp-action="Index"><i class="bi bi-x-circle me-1"></i>Limpiar</a>
+        </div>
+    </form>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info d-flex align-items-center gap-2">
+        <i class="bi bi-info-circle-fill"></i>
+        <span>No se encontraron habitaciones activas.</span>
+    </div>
+}
+else
+{
+    <div class="table-hotel">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>N.° Hab.</th>
+                    <th>Piso</th>
+                    <th>Tipo</th>
+                    <th>Capacidad</th>
+                    <th class="text-end">Precio / noche</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var h in Model)
+                {
+                    <tr>
+                        <td><span class="fw-bold fs-6">@h.Numero</span></td>
+                        <td><i class="bi bi-layers me-1 text-muted"></i>Piso @h.Piso</td>
+                        <td>@h.IdTipoHabitacionNavigation.Nombre</td>
+                        <td><i class="bi bi-people me-1 text-muted"></i>@h.IdTipoHabitacionNavigation.Capacidad pax</td>
+                        <td class="text-end fw-semibold" style="color:var(--azul-slate);">S/ @h.IdTipoHabitacionNavigation.PrecioNoche.ToString("N2")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@h.IdHabitacion">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a class="btn btn-sm btn-outline-primary ms-1" asp-action="Edit" asp-route-id="@h.IdHabitacion">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a class="btn btn-sm btn-outline-danger ms-1" asp-action="Delete" asp-route-id="@h.IdHabitacion">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

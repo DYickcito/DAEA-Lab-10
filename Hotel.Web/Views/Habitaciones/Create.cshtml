@@ -1,0 +1,32 @@
+@model Hotel.Web.Models.Habitacion
+@{
+    ViewData["Title"] = "Nueva Habitación";
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-plus-circle me-2"></i>Nueva Habitación</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header-hotel">
+                <i class="bi bi-door-open me-2"></i>Datos de la Habitación
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <partial name="_Form" model="Model" />
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-hotel-gold">
+                            <i class="bi bi-check-circle me-1"></i>Guardar
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

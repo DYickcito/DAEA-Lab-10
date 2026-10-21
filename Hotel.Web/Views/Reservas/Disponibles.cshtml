@@ -1,0 +1,89 @@
+@model List<Hotel.Web.Models.Habitacion>
+@{
+    ViewData["Title"] = "Disponibilidad de Habitaciones";
+    var ingreso = ViewBag.Ingreso as DateOnly?;
+    var salida = ViewBag.Salida as DateOnly?;
+    int noches = ViewBag.Noches ?? 0;
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-search me-2"></i>Consultar Disponibilidad</h1>
+</div>
+
+<div class="search-bar">
+    <form asp-action="Disponibles" method="get">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold"><i class="bi bi-calendar-event me-1"></i>Fecha de Ingreso</label>
+                <input type="date" name="ingreso" class="form-control"
+                       value="@(ingreso.HasValue ? ingreso.Value.ToString("yyyy-MM-dd") : "")"
+                       min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <span class="text-danger small">@Html.ValidationMessage("ingreso")</span>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold"><i class="bi bi-calendar-event me-1"></i>Fecha de Salida</label>
+                <input type="date" name="salida" class="form-control"
+                       value="@(salida.HasValue ? salida.Value.ToString("yyyy-MM-dd") : "")"
+                       min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                <span class="text-danger small">@Html.ValidationMessage("salida")</span>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-hotel-gold flex-grow-1">
+                    <i class="bi bi-search me-1"></i>Buscar Disponibilidad
+                </button>
+                <a asp-action="Disponibles" class="btn btn-outline-secondary">
+                    <i class="bi bi-x"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+}
+
+@if (Model != null)
+{
+    if (!Model.Any())
+    {
+        <div class="alert alert-warning d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>No hay habitaciones disponibles para el período seleccionado (@ingreso?.ToString("dd/MM/yyyy") — @salida?.ToString("dd/MM/yyyy")).</span>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <span class="badge bg-success fs-6">@Model.Count habitación(es) disponible(s)</span>
+            <span class="text-muted">para @noches noche(s): @ingreso?.ToString("dd/MM/yyyy") → @salida?.ToString("dd/MM/yyyy")</span>
+        </div>
+
+        @foreach (var h in Model)
+        {
+            var total = noches * h.IdTipoHabitacionNavigation.PrecioNoche;
+            <div class="habitacion-card">
+                <div>
+                    <h5 class="mb-1 fw-bold">Habitación @h.Numero
+                        <span class="text-muted fw-normal small ms-2">Piso @h.Piso</span>
+                    </h5>
+                    <span class="text-muted">@h.IdTipoHabitacionNavigation.Nombre</span>
+                    <span class="ms-3"><i class="bi bi-people text-muted me-1"></i>@h.IdTipoHabitacionNavigation.Capacidad pax</span>
+                    <span class="precio-noche ms-3">S/ @h.IdTipoHabitacionNavigation.PrecioNoche.ToString("N2") / noche</span>
+                </div>
+                <div class="text-end">
+                    <div class="precio-total mb-2">S/ @total.ToString("N2")</div>
+                    <span class="text-muted small d-block mb-2">Total @noches noche(s)</span>
+                    <a asp-controller="Reservas" asp-action="Create"
+                       asp-route-idHabitacion="@h.IdHabitacion"
+                       asp-route-ingreso="@ingreso?.ToString("yyyy-MM-dd")"
+                       asp-route-salida="@salida?.ToString("yyyy-MM-dd")"
+                       class="btn btn-sm btn-hotel-gold">
+                        <i class="bi bi-calendar-plus me-1"></i>Reservar
+                    </a>
+                </div>
+            </div>
+        }
+    }
+}

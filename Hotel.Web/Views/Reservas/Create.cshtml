@@ -1,0 +1,101 @@
+@model Hotel.Web.Models.Reserva
+@{
+    ViewData["Title"] = "Nueva Reserva";
+    var huespedes = ViewBag.HuespedesList as List<Hotel.Web.Models.Huesped>;
+    var habitaciones = ViewBag.HabitacionesList as List<Hotel.Web.Models.Habitacion>;
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-calendar-plus me-2"></i>Nueva Reserva</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header-hotel">
+                <i class="bi bi-calendar-check me-2"></i>Datos de la Reserva
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdHuesped" class="form-label">Huésped</label>
+                        <select asp-for="IdHuesped" class="form-select">
+                            <option value="0">-- Seleccione un huésped --</option>
+                            @foreach (var h in huespedes!)
+                            {
+                                if (Model.IdHuesped == h.IdHuesped)
+                                {
+                                    <option value="@h.IdHuesped" selected="selected">@h.Apellidos, @h.Nombres — DNI: @h.Dni</option>
+                                }
+                                else
+                                {
+                                    <option value="@h.IdHuesped">@h.Apellidos, @h.Nombres — DNI: @h.Dni</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="IdHuesped" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdHabitacion" class="form-label">Habitación</label>
+                        <select asp-for="IdHabitacion" asp-items="ViewBag.Habitaciones" class="form-select">
+                            <option value="0">-- Seleccione una habitación --</option>
+                        </select>
+                        <span asp-validation-for="IdHabitacion" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label asp-for="FechaIngreso" class="form-label">Fecha de Ingreso</label>
+                            <input asp-for="FechaIngreso" type="date" class="form-control"
+                                   min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="FechaIngreso" class="text-danger small"></span>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label asp-for="FechaSalida" class="form-label">Fecha de Salida</label>
+                            <input asp-for="FechaSalida" type="date" class="form-control"
+                                   min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="FechaSalida" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Observaciones" class="form-label">Observaciones <span class="text-muted small">(opcional)</span></label>
+                        <textarea asp-for="Observaciones" class="form-control" rows="3"
+                                  maxlength="200" placeholder="Notas adicionales sobre la reserva..."></textarea>
+                        <span asp-validation-for="Observaciones" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-hotel-gold">
+                            <i class="bi bi-check-circle me-1"></i>Registrar Reserva
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Calcula precio estimado en tiempo real al cambiar fechas
+        document.querySelectorAll('input[type=date]').forEach(el => el.addEventListener('change', calcular));
+        document.getElementById('IdHabitacion')?.addEventListener('change', calcular);
+
+        function calcular() {
+            const ingreso = document.getElementById('FechaIngreso')?.value;
+            const salida = document.getElementById('FechaSalida')?.value;
+            if (ingreso && salida) {
+                const dias = (new Date(salida) - new Date(ingreso)) / 86400000;
+                document.getElementById('resumen-noches')?.remove();
+            }
+        }
+    </script>
+}
